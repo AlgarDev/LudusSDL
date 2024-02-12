@@ -1,1 +1,52 @@
-﻿  Ludus-SDL.vcxproj -> C:\Users\diogo\Desktop\Ludus-SDL\x64\Debug\Ludus-SDL.exe
+﻿  Entity.cpp
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(25,22): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(26,22): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(397,15): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(398,15): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(415,85): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(415,66): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(420,85): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(420,66): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(425,85): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(425,66): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(433,67): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(433,55): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(440,67): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(440,55): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(445,67): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(445,55): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(494,22): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(495,22): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(537,88): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(537,71): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(544,88): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(544,71): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(631,95): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(631,70): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(695,28): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(726,24): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(727,24): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(730,103): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(730,91): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(730,70): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(730,46): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(779,99): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(779,74): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(783,103): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(783,78): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(809,95): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(809,70): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(914,95): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(914,70): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(1004,95): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(1004,70): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(1011,14): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(1094,95): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(1094,70): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(1101,14): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(1182,95): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(1182,70): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(1234,28): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(1267,95): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
+C:\Users\diogo\Documents\GitHub\LudusSDL\Ludus-SDL\Entity.cpp(1267,70): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
+  Ludus-SDL.vcxproj -> C:\Users\diogo\Documents\GitHub\LudusSDL\x64\Debug\Ludus-SDL.exe

@@ -34,6 +34,7 @@ SDL_Texture* explosions_texture;
 float elapsedTime = 0.0f;
 float spawnInterval = 0.3f;
 int dronesSpawned = 0;
+SDL_Joystick* gGameController = NULL;
 
 
 void cleanup(void) {
@@ -66,6 +67,8 @@ void cleanup(void) {
     app.renderer = NULL;
     SDL_DestroyWindow(app.window);
     app.window = NULL;
+    SDL_JoystickClose(gGameController);
+    gGameController = NULL;
 }
 
 SDL_Texture* LoadTexture(const char* filePath, SDL_Renderer* renderTarget) {
@@ -176,10 +179,24 @@ void init(void)
 
     windowFlags = SDL_WINDOW_OPENGL;
 
-    if (SDL_Init(SDL_INIT_VIDEO) < 0)
+    if (SDL_Init(SDL_INIT_VIDEO || SDL_INIT_JOYSTICK) < 0)
     {
         printf("Couldn't initialize SDL: %s\n", SDL_GetError());
         exit(1);
+    }
+
+    if (SDL_NumJoysticks() < 1)
+    {
+        printf("Warning: No joysticks connected!\n");
+    }
+    else
+    {
+        //Load joystick
+        gGameController = SDL_JoystickOpen(0);
+        if (gGameController == NULL)
+        {
+            printf("Warning: Unable to open game controller! SDL Error: %s\n", SDL_GetError());
+        }
     }
 
     app.window = SDL_CreateWindow("Xenon 2000 clone", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, windowFlags);
@@ -208,6 +225,7 @@ void init(void)
     player_entity = Player(LoadTexture("Resources/missile.bmp", app.renderer), 320, 400, LoadTexture("Resources/ship1.bmp", app.renderer), 7, 3, 
         1, 0, 5, LoadTexture("Resources/clone.bmp", app.renderer), &world);
 
+
 }
 
 void doInput(float deltaTime)
@@ -217,37 +235,78 @@ void doInput(float deltaTime)
     bool movedHorizontally = false;
 
     const Uint8* keyState = SDL_GetKeyboardState(NULL);
+    const int JOYSTICK_DEAD_ZONE = 8000;
+
+    int xDir = 0;
+    int yDir = 0;
 
     while (SDL_PollEvent(&event) != 0)
     {
 
-        if (event.type == SDL_QUIT || keyState[SDL_SCANCODE_ESCAPE])
+        if (event.type == SDL_QUIT || keyState[SDL_SCANCODE_ESCAPE] || SDL_JoystickGetButton(gGameController, SDL_CONTROLLER_BUTTON_START))
             exit(0);
+
+
+        const float playerSpeed = 200.0f;
+
+        if (keyState[SDL_SCANCODE_RIGHT] || keyState[SDL_SCANCODE_D] || SDL_JoystickGetButton(gGameController, SDL_CONTROLLER_BUTTON_DPAD_RIGHT))
+        {
+            player_entity.move(playerSpeed, 0.0f, deltaTime, 1);
+            movedHorizontally = true;
+        }
+        else if (keyState[SDL_SCANCODE_LEFT] || keyState[SDL_SCANCODE_A] || SDL_JoystickGetButton(gGameController, SDL_CONTROLLER_BUTTON_DPAD_LEFT))
+        {
+            player_entity.move(-playerSpeed, 0.0f, deltaTime, 0);
+            movedHorizontally = true;
+        }
+        if (keyState[SDL_SCANCODE_DOWN] || keyState[SDL_SCANCODE_S] || SDL_JoystickGetButton(gGameController, SDL_CONTROLLER_BUTTON_DPAD_DOWN))
+            player_entity.move(0.0f, playerSpeed, deltaTime, -1);
+        else if (keyState[SDL_SCANCODE_UP] || keyState[SDL_SCANCODE_W]|| SDL_JoystickGetButton(gGameController, SDL_CONTROLLER_BUTTON_DPAD_UP))
+            player_entity.move(0.0f, -playerSpeed, deltaTime, -1);
+
+        if (!movedHorizontally)
+            player_entity.stop(deltaTime);
+
+        if (keyState[SDL_SCANCODE_SPACE] || SDL_JoystickGetButton(gGameController, SDL_CONTROLLER_BUTTON_A))
+            player_entity.shoot();
+
+        if (event.type == SDL_JOYAXISMOTION)
+        {
+            if (event.jaxis.which == 0)
+            {
+                if (event.jaxis.axis == 0)
+                {
+                    if (event.jaxis.value < -JOYSTICK_DEAD_ZONE)
+                    {
+                        player_entity.move(-playerSpeed, 0.0f, deltaTime, 0);
+                        movedHorizontally = true;
+                    }
+                    else if (event.jaxis.value > JOYSTICK_DEAD_ZONE)
+                    {
+                        player_entity.move(playerSpeed, 0.0f, deltaTime, 1);
+                        movedHorizontally = true;
+                    }
+                }
+            }
+            else if (event.jaxis.axis == 1)
+            {
+                if (event.jaxis.value < -JOYSTICK_DEAD_ZONE)
+                {
+                    player_entity.move(0.0f, playerSpeed, deltaTime, -1);
+                }
+                else if (event.jaxis.value > JOYSTICK_DEAD_ZONE)
+                {
+                    player_entity.move(0.0f, -playerSpeed, deltaTime, -1);
+                }
+            }
+        }
     }
-
-    const float playerSpeed = 200.0f;
-
-    if (keyState[SDL_SCANCODE_RIGHT] || keyState[SDL_SCANCODE_D]) {
-        player_entity.move(playerSpeed, 0.0f, deltaTime, 1);
-        movedHorizontally = true;
-    }
-    else if (keyState[SDL_SCANCODE_LEFT] || keyState[SDL_SCANCODE_A]) {
-        player_entity.move(-playerSpeed, 0.0f, deltaTime, 0);
-        movedHorizontally = true;
-    }
-    if (keyState[SDL_SCANCODE_DOWN] || keyState[SDL_SCANCODE_S])
-        player_entity.move(0.0f, playerSpeed, deltaTime, -1);
-    else if (keyState[SDL_SCANCODE_UP] || keyState[SDL_SCANCODE_W])
-        player_entity.move(0.0f, -playerSpeed, deltaTime, -1);
-
-    if (!movedHorizontally)
-        player_entity.stop(deltaTime);
-
-    if (keyState[SDL_SCANCODE_SPACE])
-        player_entity.shoot();
-
-
 }
+        
+
+
+    
+
 
 void prepareScene(void)
 {

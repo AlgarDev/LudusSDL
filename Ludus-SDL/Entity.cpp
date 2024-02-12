@@ -5,7 +5,7 @@
 #include <cmath>
 #define PTM_RATIO 32.0f
 
-
+//old
 typedef struct {
     SDL_Renderer* renderer;
     SDL_Window* window;
@@ -84,7 +84,7 @@ public:
     {
         SDL_DestroyTexture(texture);
         texture = NULL;
-
+        
     }
 
     bool OOB() {
@@ -315,7 +315,8 @@ public:
 class Player : public Entity
 {
 public:
-
+    bool hasLeftCompanion;
+    bool hasRightCompanion;
     Player() : Entity() {}
     Player(SDL_Texture* p, int x, int y, SDL_Texture* texture, int maxStatesW, int currentStateW, int maxStatesH, int currentStateH, int HP, 
         SDL_Texture* c, b2World* world) :
@@ -328,6 +329,8 @@ public:
         maxHP = HP;
         initPhysics(world);
         this->world = world;
+        hasLeftCompanion = false;
+        hasRightCompanion = false;
     }
     bool doCollision(Entity my_enemy) {
         for (auto it = projectiles.begin(); it != projectiles.end();)
@@ -378,13 +381,23 @@ public:
 
     }
 
-    void killCompanion(std::list<Explosion>* explosions, SDL_Texture* explosions_texture) {
-        for (auto& i : companions) {
-            i.clean();
-            explosions->push_back(Explosion(i.getPosition().x, i.getPosition().y,
-                explosions_texture, 5, 0, 2, 0, 0));;
-        }
-        companions.clear();
+    void setHasLeftCompanion(bool result) {
+        hasLeftCompanion = result;
+    }
+
+    void setHasRightCompanion(bool result) {
+        hasRightCompanion = result;
+    }
+
+    void killCompanion(std::list<Explosion>* explosions, SDL_Texture* explosions_texture, bool isLeftCompanion) {
+        companions.erase(std::remove_if(companions.begin(), companions.end(), [&](const Companion& i) {
+            return (isLeftCompanion && i.getPosition().x < position.x)
+                || (!isLeftCompanion && i.getPosition().x > position.x);
+            }), companions.end());
+        int x = isLeftCompanion ? position.x - 35 : position.x + 35;
+        int y = position.y + 5;
+        if ((isLeftCompanion && hasLeftCompanion) || (!isLeftCompanion && hasRightCompanion))
+            explosions->push_back(Explosion(x, y, explosions_texture, 5, 0, 2, 0, 0));;
     }
 
     void shoot()
@@ -518,25 +531,25 @@ public:
         if (currentCompanion <= maxCompanion)
         {
             ++currentCompanion;
-            if (currentCompanion == 1)
+            if (!hasRightCompanion)
             {
-
+                hasRightCompanion = true;
                 Companion new_companion(companion_texture, position.x + 35, position.y + 5, projectile_texture, 4, 0, 5, 0, 3, world);
                 companions.push_front(new_companion);
             }
 
-            if (currentCompanion == 2)
+            else if (!hasLeftCompanion)
             {
-
+                hasLeftCompanion = true;
                 Companion new_companion(companion_texture, position.x - 35, position.y + 5, projectile_texture, 4, 0, 5, 0, 3, world);
                 companions.push_front(new_companion);
             }
 
 
-            
+
         }
 
-       
+
     }
 
     void onHit(int hitDamage) {
@@ -618,7 +631,7 @@ public:
                 explosions->push_back(Explosion(player->getPosition().x, player->getPosition().y,
                     explosions_texture, 5, 0, 2, 0, 0));
                 player->clean();
-                player->killCompanion(explosions, explosions_texture);
+                player->killCompanion(explosions, explosions_texture, false); player->killCompanion(explosions, explosions_texture, true);
                 player->SetPosition(10000, 10000);
             }
 
@@ -628,6 +641,33 @@ public:
             this->clean();
         }
         move(0, 100, deltatime);
+
+        if (!player->isDead()) {
+            bool toDeleteLeft = false;
+            bool toDeleteRight = false;
+            for (Companion& i : *player->getCompanions()) {
+                if (this->isColliding(i))
+                    i.onHit(hitDamage);
+
+                if (i.getPosition().x > player->getPosition().x) {
+                    toDeleteLeft = i.isDead();
+                }
+                else if (i.getPosition().x < player->getPosition().x) {
+                    toDeleteRight = i.isDead();
+                }
+            }
+            if (toDeleteLeft) {
+                player->killCompanion(explosions, explosions_texture, true);
+                player->setHasLeftCompanion(false);
+
+            }
+
+            if (toDeleteRight) {
+                player->killCompanion(explosions, explosions_texture, false);
+                player->setHasRightCompanion(false);
+            }
+
+        }
     }
     const int getDamage() {
         return hitDamage;
@@ -698,6 +738,34 @@ public:
             body->SetTransform(b2Vec2(position.x / PTM_RATIO, position.y / PTM_RATIO), body->GetAngle());
         }
         for (auto it = enemy_projectiles.begin(); it != enemy_projectiles.end();) {
+
+            if (!player->isDead()) {
+                bool toDeleteLeft = false;
+                bool toDeleteRight = false;
+                for (Companion& i : *player->getCompanions()) {
+                    if (it->isColliding(i))
+                        i.onHit(hitDamage);
+
+                    if (i.getPosition().x > player->getPosition().x) {
+                        toDeleteLeft = i.isDead();
+                    }
+                    else if (i.getPosition().x < player->getPosition().x) {
+                        toDeleteRight = i.isDead();
+                    }
+                }
+                if (toDeleteLeft) {
+                    player->killCompanion(explosions, explosions_texture, true);
+                    player->setHasLeftCompanion(false);
+
+                }
+
+                if (toDeleteRight) {
+                    player->killCompanion(explosions, explosions_texture, false);
+                    player->setHasRightCompanion(false);
+                }
+
+            }
+
             it->move(deltatime);
             if (it->OOB()) {
                 it = enemy_projectiles.erase(it);
@@ -707,12 +775,15 @@ public:
                 bool collision = false;
                 if (it->isColliding(*player)) {
                     player->onHit(hitDamage);
+                    it = enemy_projectiles.erase(it);
+                    explosions->push_back(Explosion(player->getPosition().x, player->getPosition().y,
+                        explosions_texture, 5, 0, 2, 0, 0));
                     if (player->isDead())
                     {
                         explosions->push_back(Explosion(player->getPosition().x, player->getPosition().y,
                             explosions_texture, 5, 0, 2, 0, 0));
                         player->clean();
-                        player->killCompanion(explosions, explosions_texture);
+                        player->killCompanion(explosions, explosions_texture, false); player->killCompanion(explosions, explosions_texture, true);
                         player->SetPosition(10000, 10000);
                     }
                     collision = true;
@@ -737,7 +808,7 @@ public:
             {
                 explosions->push_back(Explosion(player->getPosition().x, player->getPosition().y,
                     explosions_texture, 5, 0, 2, 0, 0));
-                player->killCompanion(explosions, explosions_texture);
+                player->killCompanion(explosions, explosions_texture, false); player->killCompanion(explosions, explosions_texture, true);
                 player->clean();
                 player->SetPosition(10000, 10000);
             }
@@ -746,6 +817,34 @@ public:
 
         shoot(player);
         move(-speedX, speedY, deltatime);
+
+        if (!player->isDead()) {
+            bool toDeleteLeft = false;
+            bool toDeleteRight = false;
+            for (Companion& i : *player->getCompanions()) {
+                if (this->isColliding(i))
+                    i.onHit(hitDamage);
+
+                if (i.getPosition().x > player->getPosition().x) {
+                    toDeleteLeft = i.isDead();
+                }
+                else if (i.getPosition().x < player->getPosition().x) {
+                    toDeleteRight = i.isDead();
+                }
+            }
+            if (toDeleteLeft) {
+                player->killCompanion(explosions, explosions_texture, true);
+                player->setHasLeftCompanion(false);
+
+            }
+
+            if (toDeleteRight) {
+                player->killCompanion(explosions, explosions_texture, false);
+                player->setHasRightCompanion(false);
+            }
+
+        }
+
     }
 
 
@@ -814,12 +913,39 @@ public:
             {
                 explosions->push_back(Explosion(player->getPosition().x, player->getPosition().y,
                     explosions_texture, 5, 0, 2, 0, 0));
-                player->killCompanion(explosions, explosions_texture);
+                player->killCompanion(explosions, explosions_texture, false); player->killCompanion(explosions, explosions_texture, true);
                 player->clean();
                 player->SetPosition(10000, 10000);
             }
         }
         move(0, 1, deltatime);
+
+        if (!player->isDead()) {
+            bool toDeleteLeft = false;
+            bool toDeleteRight = false;
+            for (Companion& i : *player->getCompanions()) {
+                if (this->isColliding(i))
+                    i.onHit(hitDamage);
+
+                if (i.getPosition().x > player->getPosition().x) {
+                    toDeleteLeft = i.isDead();
+                }
+                else if (i.getPosition().x < player->getPosition().x) {
+                    toDeleteRight = i.isDead();
+                }
+            }
+            if (toDeleteLeft) {
+                player->killCompanion(explosions, explosions_texture, true);
+                player->setHasLeftCompanion(false);
+
+            }
+
+            if (toDeleteRight) {
+                player->killCompanion(explosions, explosions_texture, false);
+                player->setHasRightCompanion(false);
+            }
+
+        }
     }
 protected:
     int hitDamage;
@@ -877,12 +1003,39 @@ public:
             {
                 explosions->push_back(Explosion(player->getPosition().x, player->getPosition().y,
                     explosions_texture, 5, 0, 2, 0, 0));
-                player->killCompanion(explosions, explosions_texture);
+                player->killCompanion(explosions, explosions_texture, false); player->killCompanion(explosions, explosions_texture, true);
                 player->clean();
                 player->SetPosition(10000, 10000);
             }
         }
         move(left ? -30 : 30, 1, deltatime);
+
+        if (!player->isDead()) {
+            bool toDeleteLeft = false;
+            bool toDeleteRight = false;
+            for (Companion& i : *player->getCompanions()) {
+                if (this->isColliding(i))
+                    i.onHit(hitDamage);
+
+                if (i.getPosition().x > player->getPosition().x) {
+                    toDeleteLeft = i.isDead();
+                }
+                else if (i.getPosition().x < player->getPosition().x) {
+                    toDeleteRight = i.isDead();
+                }
+            }
+            if (toDeleteLeft) {
+                player->killCompanion(explosions, explosions_texture, true);
+                player->setHasLeftCompanion(false);
+
+            }
+
+            if (toDeleteRight) {
+                player->killCompanion(explosions, explosions_texture, false);
+                player->setHasRightCompanion(false);
+            }
+
+        }
     }
 protected:
     int hitDamage;
@@ -940,12 +1093,39 @@ public:
             {
                 explosions->push_back(Explosion(player->getPosition().x, player->getPosition().y,
                     explosions_texture, 5, 0, 2, 0, 0));
-                player->killCompanion(explosions, explosions_texture);
+                player->killCompanion(explosions, explosions_texture, false); player->killCompanion(explosions, explosions_texture, true);
                 player->clean();
                 player->SetPosition(10000, 10000);
             }
         }
         move(left ? -30 : 30, 1, deltatime);
+
+        if (!player->isDead()) {
+            bool toDeleteLeft = false;
+            bool toDeleteRight = false;
+            for (Companion& i : *player->getCompanions()) {
+                if (this->isColliding(i))
+                    i.onHit(hitDamage);
+
+                if (i.getPosition().x > player->getPosition().x) {
+                    toDeleteLeft = i.isDead();
+                }
+                else if (i.getPosition().x < player->getPosition().x) {
+                    toDeleteRight = i.isDead();
+                }
+            }
+            if (toDeleteLeft) {
+                player->killCompanion(explosions, explosions_texture, true);
+                player->setHasLeftCompanion(false);
+
+            }
+
+            if (toDeleteRight) {
+                player->killCompanion(explosions, explosions_texture, false);
+                player->setHasRightCompanion(false);
+            }
+
+        }
     }
 protected:
     int hitDamage;
@@ -1001,12 +1181,38 @@ public:
             {
                 explosions->push_back(Explosion(player->getPosition().x, player->getPosition().y,
                     explosions_texture, 5, 0, 2, 0, 0));
-                player->killCompanion(explosions, explosions_texture);
+                player->killCompanion(explosions, explosions_texture, false); player->killCompanion(explosions, explosions_texture, true);
                 player->clean();
                 player->SetPosition(10000, 10000);
             }
         }
         move(0, 1, deltatime);
+        if (!player->isDead()) {
+            bool toDeleteLeft = false;
+            bool toDeleteRight = false;
+            for (Companion& i : *player->getCompanions()) {
+                if (this->isColliding(i))
+                    i.onHit(hitDamage);
+
+                if (i.getPosition().x > player->getPosition().x) {
+                    toDeleteLeft = i.isDead();
+                }
+                else if (i.getPosition().x < player->getPosition().x) {
+                    toDeleteRight = i.isDead();
+                }
+            }
+            if (toDeleteLeft) {
+                player->killCompanion(explosions, explosions_texture, true);
+                player->setHasLeftCompanion(false);
+
+            }
+
+            if (toDeleteRight) {
+                player->killCompanion(explosions, explosions_texture, false);
+                player->setHasRightCompanion(false);
+            }
+
+        }
     }
 protected:
     int hitDamage;
@@ -1060,12 +1266,39 @@ public:
             {
                 explosions->push_back(Explosion(player->getPosition().x, player->getPosition().y,
                     explosions_texture, 5, 0, 2, 0, 0));
-                player->killCompanion(explosions, explosions_texture);
+                player->killCompanion(explosions, explosions_texture, false); player->killCompanion(explosions, explosions_texture, true);
                 player->clean();
                 player->SetPosition(10000, 10000);
             }
         }
         move(0, 100, deltatime);
+
+        if (!player->isDead()) {
+            bool toDeleteLeft = false;
+            bool toDeleteRight = false;
+            for (Companion& i : *player->getCompanions()) {
+                if (this->isColliding(i))
+                    i.onHit(hitDamage);
+
+                if (i.getPosition().x > player->getPosition().x) {
+                    toDeleteLeft = i.isDead();
+                }
+                else if (i.getPosition().x < player->getPosition().x) {
+                    toDeleteRight = i.isDead();
+                }
+            }
+            if (toDeleteLeft) {
+                player->killCompanion(explosions, explosions_texture, true);
+                player->setHasLeftCompanion(false);
+
+            }
+
+            if (toDeleteRight) {
+                player->killCompanion(explosions, explosions_texture, false);
+                player->setHasRightCompanion(false);
+            }
+
+        }
     }
 
 protected:
